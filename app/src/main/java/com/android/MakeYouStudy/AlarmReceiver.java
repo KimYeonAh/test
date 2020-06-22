@@ -14,7 +14,7 @@ import java.util.Calendar;
 
 public class AlarmReceiver extends BroadcastReceiver {
     static String TAG="AlarmReceiver";
-
+//
     // PowerManger.WakeLock object
     private static PowerManager.WakeLock sCpuWakeLock;
     private static ConnectivityManager manger;
