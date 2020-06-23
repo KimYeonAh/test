@@ -222,7 +222,7 @@ implementation 'com.google.firebase:firebase-ml-vision:24.0.0'
 
 
 
-**InternetCheck.java**
+**InternetCheck.java**<br>
 인터넷 여부를 체크하기 위해 인터넷을 체크하는 Activity를 추가한다.
 ~~~java
 public class InternetCheck extends AsyncTask<Void,Void,Boolean> {  
