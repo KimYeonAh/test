@@ -109,104 +109,103 @@ Activity의 구분은 위에서 함께 넘겨준 requestCode로 구분할 수 �
 - 출석체크 완료 시, 출석 count를 증가시키고 알람과 Activity를 꺼준다.
 - 출석체크 실패 시, 출석체크를 다시 수행할 수 있게 일시정지 되었던 알람이 다시 울린다. 
 ~~~java
-@Override  
-protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {  
-	super.onActivityResult(requestCode, resultCode, data);  
-  
-	switch (requestCode) 
-	{
-		case LABEL_ACTIVITY: //ImageLabelActivity에서 받아온 data로 출결여부 결정
-			String label = data.getStringExtra("labeling");  
-		
-			if(label.equals("Desk") || label.equals("Table") ){  
-	            Toast.makeText(this, "Label 출석체크 완료 : "+label, Toast.LENGTH_SHORT).show();  
-				alarmOff();  
-				checkDaysTotal(weeks);    
-				finish();  
-			}  
-	        else if(label.equals("BackPressed")){  
-	            Toast.makeText(this, "Label 출석체크 취소", Toast.LENGTH_SHORT).show();  
-				mediaRestart();  
-			}  
-	        else {  
-	            Toast.makeText(this, "출석체크 실패 : "+label, Toast.LENGTH_SHORT).show();  
-				count++;  
-				mediaRestart();  
-				
-				//사물인식 출석체크 3번 실패 시 text 인식 출석체크 Activity 실행 
-				if(count>=3){  
-				count = 0;   
-				textRecognition();  
-				}  
-	       }  break;  
-		case TEXT_ACTIVITY :  //TextRecognitionActivity에서 받아온 data로 출결여부 결정
-	        boolean checkValue = data.getBooleanExtra("checkValue", false);  
-			if(checkValue == true){  
-	            Toast.makeText(this, "Text 출석체크 완료", Toast.LENGTH_SHORT).show();  
-				alarmOff();  
-				checkDaysTotal(weeks);  
-				finish();  
-			}
-			else {  
-	            Toast.makeText(this, "Text 출석체크 취소", Toast.LENGTH_SHORT).show();  
-				mediaRestart();  
-			} break;  
-		case IMAGE_MATCHING_ACTIVITY :  //ImageMatchingActivity에서 받아온 data로 출결여부 결정
-	        boolean checkMatching = data.getBooleanExtra("checkMatching", false);  
-			
-			if(checkMatching == true){  
-			    Toast.makeText(this, "ImageMatching 출석체크 완료", Toast.LENGTH_SHORT).show();  
-			    alarmOff();  
-			    checkDaysTotal(weeks);  
-			    finish();  
-			}
-			else {  
-	            Toast.makeText(this, "ImageMatching 출석체크 취소", Toast.LENGTH_SHORT).show();  
-				mediaRestart();  
-			}  
-	}  
+@Override
+protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+super.onActivityResult(requestCode, resultCode, data);
+
+switch (requestCode) {
+    case LABEL_ACTIVITY:
+
+    String label = data.getStringExtra("labeling");
+
+    if(label.equals("Desk") || label.equals("Table") ){
+	Toast.makeText(this, "Label 출석체크 완료 : "+label, Toast.LENGTH_SHORT).show();
+	alarmOff();
+	checkDaysTotal(weeks);
+	Log.d(TAG, "실행");
+	finish();
+    }
+    else if(label.equals("BackPressed")){
+	Toast.makeText(this, "Label 출석체크 취소", Toast.LENGTH_SHORT).show();
+	mediaRestart();
+    }
+    else {
+	Toast.makeText(this, "출석체크 실패 : "+label, Toast.LENGTH_SHORT).show();
+	count++;
+	mediaRestart();
+	Log.d("count_number", ""+count);
+
+	if(count>=3){ // count 가 3일 때 (사물인식 출석체크 3번 실패 시) count = 0으로 셋팅후 textRecognition 메소드 실행(text 인식 출석체크 Activity 실행)
+	    count = 0;
+	    Log.d("count_reset", ""+count);
+	    textRecognition();
+	}
+    }
+    break;
+case TEXT_ACTIVITY :
+    boolean checkValue = data.getBooleanExtra("checkValue", false);
+    if(checkValue == true){
+	Toast.makeText(this, "Text 출석체크 완료", Toast.LENGTH_SHORT).show();
+	alarmOff();
+	checkDaysTotal(weeks);
+	finish();
+    } else {
+	Toast.makeText(this, "Text 출석체크 취소", Toast.LENGTH_SHORT).show();
+	mediaRestart();
+    }
+    break;
+case IMAGE_MATCHING_ACTIVITY :
+    boolean checkMatching = data.getBooleanExtra("checkMatching", false);
+    if(checkMatching == true){
+	Toast.makeText(this, "ImageMatching 출석체크 완료", Toast.LENGTH_SHORT).show();
+	alarmOff();
+	checkDaysTotal(weeks);
+	finish();
+    }else {
+	Toast.makeText(this, "ImageMatching 출석체크 취소", Toast.LENGTH_SHORT).show();
+	mediaRestart();
+    }
+}
 }
 ~~~
 Skip button을 클릭시 수행되는 `dialogSkip()` method이다.<br>
 AlertDialog를 띄워 출석 여부를 고를 수 있다.
 ~~~java
-public void dialogSkip(){  
-    activity = this;  
-    AlertDialog.Builder alertdialog = new AlertDialog.Builder(activity);  
-    alertdialog.setMessage("출석여부를 고르세요.");  
-  
-    // 결석버튼  
-    alertdialog.setPositiveButton("결석", new DialogInterface.OnClickListener(){  
-        @Override  
-	    public void onClick(DialogInterface dialog, int which) {  
-            Toast.makeText(activity, "결석처리 되었습니다.", Toast.LENGTH_SHORT).show();  
-		    alarmOff();  
-		    finish();  
-	    }  
-    });  
-    // 출석버튼  
-    alertdialog.setNegativeButton("출석", new DialogInterface.OnClickListener() {  
-        @Override  
-	    public void onClick(DialogInterface dialog, int which) {  
-            Toast.makeText(activity, "출석처리 되었습니다.", Toast.LENGTH_SHORT).show();  
-		    alarmOff();  
-		    checkDaysTotal(weeks);  
-		    finish();  
-		}  
-    });
-    // 취소버튼  
-    alertdialog.setNeutralButton("취소", new DialogInterface.OnClickListener(){  
-        @Override  
-	    public void onClick(DialogInterface dialog, int id)  
-        {  
-            Toast.makeText(activity, "'취소'버튼을 누르셨습니다.", Toast.LENGTH_SHORT).show();  
-		    mediaRestart();  
-		}  
-    });  
-    
-    AlertDialog alert = alertdialog.create();  
-    alert.setTitle("Skip");  
-    alert.show();  
+public void dialogSkip(){
+activity = this;
+AlertDialog.Builder alertdialog = new AlertDialog.Builder(activity);
+alertdialog.setMessage("출석여부를 고르세요.");
+
+// 확인버튼 - 결석
+alertdialog.setPositiveButton("결석", new DialogInterface.OnClickListener(){
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+	Toast.makeText(activity, "결석처리 되었습니다.", Toast.LENGTH_SHORT).show();
+	alarmOff();
+	finish();
+    }
+});
+// 취소버튼
+alertdialog.setNegativeButton("출석", new DialogInterface.OnClickListener() {
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+	Toast.makeText(activity, "출석처리 되었습니다.", Toast.LENGTH_SHORT).show();
+	alarmOff();
+	checkDaysTotal(weeks);
+	finish();
+    }
+});
+alertdialog.setNeutralButton("취소", new DialogInterface.OnClickListener(){
+    @Override
+    public void onClick(DialogInterface dialog, int id)
+    {
+	Toast.makeText(activity, "'취소'버튼을 누르셨습니다.", Toast.LENGTH_SHORT).show();
+	mediaRestart();
+    }
+});
+AlertDialog alert = alertdialog.create();
+alert.setTitle("Skip");
+alert.show();
 }
 ~~~
 >[AttendanceCheckActivity.java 전체 코드](https://github.com/JJinTae/MakeYouStudy/blob/master/app/src/main/java/com/android/MakeYouStudy/AttendanceCheckActivity.java)
@@ -227,35 +226,38 @@ implementation 'com.google.firebase:firebase-ml-vision:24.0.0'
 **InternetCheck.java**<br>
 인터넷 여부를 체크하기 위해 인터넷을 체크하는 Activity를 추가한다.
 ~~~java
-public class InternetCheck extends AsyncTask<Void,Void,Boolean> {  
-  
-	Consumer consumer;  
-  
-	public InternetCheck(Consumer consumer){  
-	    this.consumer = consumer;  
-		execute();  
-	}  
-  
-	@Override  
-	protected Boolean doInBackground(Void... voids) {  
-	    try{  
-            Socket socket = new Socket();  
-			socket.connect(new InetSocketAddress("google.com",80),1500);  
-			socket.close();  
-			return true;  
-		}
-		catch (Exception e){  
-            return false;  
-		}  
-	} 
-  
-	@Override  
-	protected void onPostExecute(Boolean aBoolean) {  
-        super.onPostExecute(aBoolean);  
-		consumer.accept(aBoolean);  
-	}  
-  
-    public interface Consumer { void accept(boolean internet); }  
+public class InternetCheck extends AsyncTask<Void,Void,Boolean> {
+
+    Consumer consumer;
+
+    public InternetCheck(Consumer consumer){
+        this.consumer = consumer;
+        execute();
+    }
+
+    @Override
+    protected Boolean doInBackground(Void... voids) {
+        try{
+            Socket socket = new Socket();
+            socket.connect(new InetSocketAddress("google.com",80),1500);
+            socket.close();
+            return true;
+        }catch (Exception e){
+            return false;
+        }
+
+
+    }
+
+    @Override
+    protected void onPostExecute(Boolean aBoolean) {
+        super.onPostExecute(aBoolean);
+        consumer.accept(aBoolean);
+    }
+
+    public interface Consumer {
+        void accept(boolean internet);
+    }
 }
 ~~~
 ***
@@ -303,36 +305,36 @@ cameraKit의 cameraView를 사용하기 위하여 아래와 같이 layout에 추
 >~~~
 아래 코드는 Detect button의 `onClickListener`이다. button을 클릭하면 cameraView가 실행되고 촬영된다.
 ~~~java
-btnDetect.setOnClickListener(new View.OnClickListener(){  
-    @Override  
-	public void onClick(View v) {  
-        cameraView.start();  
-		cameraView.captureImage();  
-	}  
+btnDetect.setOnClickListener(new View.OnClickListener(){
+    @Override
+    public void onClick(View v) {
+	cameraView.start();
+	cameraView.captureImage();
+    }
 });
 ~~~
 
 `CameraKitListener()` 부분이다. cameraView에 바로 camera를 띄워 촬영한다.
 ~~~java
-cameraView.addCameraKitListener(new CameraKitEventListener() {  
-    @Override  
-	public void onEvent(CameraKitEvent cameraKitEvent) { }  
-  
-    @Override  
-	public void onError(CameraKitError cameraKitError) { }  
-  
-    @Override  
-	public void onImage(CameraKitImage cameraKitImage) {  
-        ...  
-		Bitmap bitmap = cameraKitImage.getBitmap();  
-		bitmap = Bitmap.createScaledBitmap(bitmap,cameraView.getWidth(),cameraView.getHeight(), false);  
-		cameraView.stop();  
-  
-		runDetector(bitmap);  
-	}  
-  
-    @Override  
-	public void onVideo(CameraKitVideo cameraKitVideo) { }  
+cameraView.addCameraKitListener(new CameraKitEventListener() {
+    @Override
+    public void onEvent(CameraKitEvent cameraKitEvent) { }
+
+    @Override
+    public void onError(CameraKitError cameraKitError) { }
+
+    @Override
+    public void onImage(CameraKitImage cameraKitImage) {
+	waitingDialog.show();
+	Bitmap bitmap = cameraKitImage.getBitmap();
+	bitmap = Bitmap.createScaledBitmap(bitmap,cameraView.getWidth(),cameraView.getHeight(), false);
+	cameraView.stop();
+
+	runDetector(bitmap);
+    }
+
+    @Override
+    public void onVideo(CameraKitVideo cameraKitVideo) { }
 });
 ~~~
 위의 `CameraKitListener()`에서 사용한 `runDetector()` method이다.<br>
@@ -345,63 +347,71 @@ private void runDetector(Bitmap bitmap) {
     new InternetCheck(new InternetCheck.Consumer() {
         @Override
         public void accept(boolean internet) {
-            if(internet)
-            {
-                //인터넷이 있을 때 
-                FirebaseVisionCloudImageLabelerOptions options =
-                         new FirebaseVisionCloudImageLabelerOptions.Builder()
-                                 .setConfidenceThreshold(0.7f) // 감지된 Label의 신뢰도 설정. 이 값보다 높은 신뢰도의 label만 반환됨
-                                 .build();
-                 FirebaseVisionImageLabeler detector =
-                         FirebaseVision.getInstance().getCloudImageLabeler(options);
+	    if(internet)
+	    {
+		//인터넷이 있을 때 클라우드 사용
+		FirebaseVisionCloudImageLabelerOptions options =
+			new FirebaseVisionCloudImageLabelerOptions.Builder()
+				.setConfidenceThreshold(0.7f) // 감지된 Label의 신뢰도 설정. 이 값보다 높은 신뢰도의 label만 반환됨
+				.build();
+		FirebaseVisionImageLabeler detector =
+			FirebaseVision.getInstance().getCloudImageLabeler(options);
 
-                 detector.processImage(image)
-                         .addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionImageLabel>>() {
-                             @Override
-                             public void onSuccess(List<FirebaseVisionImageLabel> firebaseVisionCloudLabels) {
-                                 processDataResultCloud(firebaseVisionCloudLabels);
-                             }
-                         })
-                         .addOnFailureListener(new OnFailureListener() {
-                             @Override
-                             public void onFailure(@NonNull Exception e) {
-		                     Log.d("EDMTERROR", e.getMessage());
-			                 }
-			             });
-             }
-             else
-             {
-                 Toast.makeText(ImageLabelActivity.this, "인터넷을 체크하고 다시 촬영해주세요.", Toast.LENGTH_LONG).show();
-                 ...
-             }
-         }
-     });
- }
+		detector.processImage(image)
+				    .addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionImageLabel>>() {
+					@Override
+					public void onSuccess(List<FirebaseVisionImageLabel> firebaseVisionCloudLabels) {
+					    processDataResultCloud(firebaseVisionCloudLabels);
+					}
+				    })
+				    .addOnFailureListener(new OnFailureListener() {
+					@Override
+					public void onFailure(@NonNull Exception e) {
+				Log.d("EDMTERROR", e.getMessage());
+			    }
+			});
+
+	    }
+	    else
+	    {
+	        Toast.makeText(ImageLabelActivity.this, "인터넷을 체크하고 다시 촬영해주세요.", Toast.LENGTH_LONG).show();
+	        if(waitingDialog.isShowing()) {
+		    waitingDialog.dismiss();
+	        }
+	    }
+        }
+    });
+}
+
 ~~~
 위의 `runDetector()` 에서 사용한 `processDataResultCloud()` method 이다.<br>
 `runDetector()`에서 인식한 Label을 넘겨받아 Label 값이 존재할 경우 AttendanceCheckActivity로 Label 값을 넘겨주면서 ImageLabelActivity를 종료한다.
 ~~~java
-private void processDataResultCloud(List<FirebaseVisionImageLabel> firebaseVisionCloudLabels) {  
-	if(firebaseVisionCloudLabels.size()!=0){  
-        for(FirebaseVisionImageLabel label : firebaseVisionCloudLabels)  
-        {  
-            String labeling = label.getText();  
-			  
-			Intent intent = new Intent();  
-			intent.putExtra("labeling", labeling);  
-			  
-			setResult(RESULT_OK, intent);  
-			finish();  
-		}  
-	}  
-	else{  
-		Intent intent = new Intent();  
-		intent.putExtra("labeling", "NULL");  
-	  
-		setResult(RESULT_OK, intent);  
-		finish();  
-	}  
-    ... 
+private void processDataResultCloud(List<FirebaseVisionImageLabel> firebaseVisionCloudLabels) {
+    if(firebaseVisionCloudLabels.size()!=0){
+        for(FirebaseVisionImageLabel label : firebaseVisionCloudLabels)
+        {
+            String labeling = label.getText();
+            Log.d("Label Success", "True");
+            Log.d("confidence", ""+ label.getConfidence() +""+ label.getText());
+
+            Intent intent = new Intent();
+            intent.putExtra("labeling", labeling);
+
+            setResult(RESULT_OK, intent);
+            finish();
+        }
+    }
+    else{
+        Intent intent = new Intent();
+        intent.putExtra("labeling", "NULL");
+
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+    if(waitingDialog.isShowing()) {
+        waitingDialog.dismiss();
+    }
 }
 ~~~
 >[ImageLabelActivity.java 전체 코드](https://github.com/JJinTae/MakeYouStudy/blob/master/app/src/main/java/com/android/MakeYouStudy/ImageLabelActivity.java)
@@ -440,7 +450,7 @@ captureImageBtn.setOnClickListener(new View.OnClickListener() {
 ~~~java
 private void dispatchTakePictureIntent() {  
     Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);  
-	if (takePictureIntent.resolveActivity(getPackageManager()) != null) {  
+    if (takePictureIntent.resolveActivity(getPackageManager()) != null) {  
         startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);  
     }  
 }
@@ -451,12 +461,12 @@ image를 Bitmap으로 저장하고 imageView에 촬영된 사진을 보여준 �
 @Override  
 protected void onActivityResult(int requestCode, int resultCode, Intent data) {  
     super.onActivityResult(requestCode, resultCode, data);  
-	if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {  
+    if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {  
         Bundle extras = data.getExtras();  
-		imageBitmap = (Bitmap) extras.get("data");  
-		imageView.setImageBitmap(imageBitmap);  
-		detectTextFromImage();  
-	}  
+        imageBitmap = (Bitmap) extras.get("data");  
+        imageView.setImageBitmap(imageBitmap);  
+        detectTextFromImage();  
+    }  
 }
 ~~~
 >Firebase ML Kit에 대한 method 설명은 아래 링크를 참고하면서 보면 도움이 될 것이다. 
@@ -468,49 +478,49 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 `displayTextFromImage()` method에 `FirebaseVisionText` 객체를 파라미터로 전달하여 실행한다.
 > `FirebaseVisionText` 객체는 이미지에서 인식된 전체 텍스트 및 0개 이상의 [`TextBlock`](https://firebase.google.com/docs/reference/android/com/google/firebase/ml/vision/text/FirebaseVisionText.TextBlock) 객체를 포함한다.
 ~~~java
-private void detectTextFromImage()  
-{  
-    new InternetCheck(new InternetCheck.Consumer() {  
-        @Override  
-		public void accept(boolean internet) {  
-            if(internet){  
-                FirebaseVisionImage firebaseVisionImage = FirebaseVisionImage.fromBitmap(imageBitmap);  
-				FirebaseVisionTextRecognizer firebaseVisionTextDetector = FirebaseVision.getInstance().getOnDeviceTextRecognizer();  
-				firebaseVisionTextDetector.processImage(firebaseVisionImage).addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {  
-                    @Override  
-					public void onSuccess(FirebaseVisionText firebaseVisionText) {  
-                        displayTextFromImage(firebaseVisionText);  
-					}  
-                }).addOnFailureListener(new OnFailureListener() {  
-                    @Override  
-					public void onFailure(@NonNull Exception e) {  
-                        Toast.makeText(TextRecognitionActivity.this, "Error: "+ e.getMessage(), Toast.LENGTH_SHORT).show();  
-						Log.d("Error: ", e.getMessage());  
-					}  
-                });  
-			}else {  
-                Toast.makeText(TextRecognitionActivity.this, "인터넷을 체크하고 다시 촬영해주세요.", Toast.LENGTH_LONG).show();  
-			}  
-        }  
-    });  
- }
+private void detectTextFromImage()
+{
+    new InternetCheck(new InternetCheck.Consumer() {
+        @Override
+        public void accept(boolean internet) {
+            if(internet){
+                FirebaseVisionImage firebaseVisionImage = FirebaseVisionImage.fromBitmap(imageBitmap);
+                FirebaseVisionTextRecognizer firebaseVisionTextDetector = FirebaseVision.getInstance().getOnDeviceTextRecognizer();
+                firebaseVisionTextDetector.processImage(firebaseVisionImage).addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
+                    @Override
+                    public void onSuccess(FirebaseVisionText firebaseVisionText) {
+                        displayTextFromImage(firebaseVisionText);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(TextRecognitionActivity.this, "Error: "+ e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Log.d("Error: ", e.getMessage());
+                    }
+                });
+            }else {
+                Toast.makeText(TextRecognitionActivity.this, "인터넷을 체크하고 다시 촬영해주세요.", Toast.LENGTH_LONG).show();
+            }
+        }
+    });
+}
 ~~~
 `TextBlock` 를 List에 넣어주고, List의 size가 0일 때는 image에서 Text가 인식되지 않은 것이기 때문에 textView에 재촬영을 요구하는 글을 표시한다.<br>
 Text가 인식된 경우에는 Text와 AttendanceCheckActivity에서 전달받은 단어를 `check()` method의 파라미터로 전달하여 실행한다. 
 ~~~java
-private void displayTextFromImage(FirebaseVisionText firebaseVisionText) {  
-    List<FirebaseVisionText.TextBlock> blockList = firebaseVisionText.getTextBlocks();  
-	if(blockList.size() == 0){  
-        textView2.setText("사진에서 단어가 인식되지 않았습니다. 다시 촬영해주세요.");  
-	}  
-    else {  
-        String text = "";  
-		for(FirebaseVisionText.TextBlock block : firebaseVisionText.getTextBlocks())  
-        {  
-            text = block.getText().toLowerCase();    
-            check(text, data);  
-        }   
-    }  
+private void displayTextFromImage(FirebaseVisionText firebaseVisionText) {
+    List<FirebaseVisionText.TextBlock> blockList = firebaseVisionText.getTextBlocks();
+    if(blockList.size() == 0){
+        textView2.setText("사진에서 단어가 인식되지 않았습니다. 다시 촬영해주세요.");
+    }
+    else {
+        String text = "";
+        for(FirebaseVisionText.TextBlock block : firebaseVisionText.getTextBlocks())
+        {
+            text = block.getText().toLowerCase();
+            check(text, data);
+        }
+    }
 }
 ~~~
 제시된 단어와 촬영하여 인식된 단어가 같은지 확인하는 `check()` method이다.<br>
@@ -519,15 +529,15 @@ private void displayTextFromImage(FirebaseVisionText firebaseVisionText) {
 public void check(String text, String data){  
     if(text.equals(data)){  
         checkValue = true;  
-		Intent intent = new Intent();  
-		intent.putExtra("checkValue", checkValue);  
-		setResult(RESULT_OK, intent);  
-		finish();  
-	}  
+	Intent intent = new Intent();  
+	intent.putExtra("checkValue", checkValue);  
+	setResult(RESULT_OK, intent);  
+	finish();  
+    }  
     else {  
         checkValue = false;  
-		textView2.setText("인식된 단어는 " + text);  
-	}  
+	textView2.setText("인식된 단어는 " + text);  
+    }  
 }
 ~~~
 >[TextRecognitionActivity.java 전체 코드](https://github.com/JJinTae/MakeYouStudy/blob/master/app/src/main/java/com/android/MakeYouStudy/TextRecognitionActivity.java)
@@ -558,9 +568,9 @@ Camera를 실행시켜주는 button `onClickListener`이다.
 btnCamera = (Button)findViewById(R.id.btnCamera);  
 btnCamera.setOnClickListener(new View.OnClickListener() {  
     @Override  
-	public void onClick(View v) {    
-		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);  
-		startActivityForResult(intent, 0);  
+    public void onClick(View v) {    
+    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);  
+    startActivityForResult(intent, 0);  
     }  
 });  
 
