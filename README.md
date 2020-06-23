@@ -18,7 +18,7 @@ Time Table에서 시간표를 설정한 후 지정한 시간에 알람이 울리
 
 - button을 클릭하면 해당 Activity로 이동하여 출석체크 하는 동안 알람이 일시정지된다. 
 
-아래는 각 button들의 onClickListener이다.
+아래는 각 button들의 `onClickListener`이다.
 ~~~java
 btnCheck = (Button)findViewById(R.id.btnCheck);
 btnCheck.setOnClickListener(new View.OnClickListener() {
@@ -255,7 +255,7 @@ public class InternetCheck extends AsyncTask<Void,Void,Boolean> {
     public interface Consumer { void accept(boolean internet); }  
 }
 ~~~
-
+***
 ### 사물 인식 (Image Labeling)
 - 카메라로 책상을 촬영하여, 책상이 인식되면 출석체크가 완료된다.
 - 사물인식 (Image Labeling) 기능을 사용할 때, 보다 안정적이고 빠르게 촬영 후 Detect하기 위해 CameraKit를 사용하였다.
@@ -401,7 +401,7 @@ private void processDataResultCloud(List<FirebaseVisionImageLabel> firebaseVisio
     ... 
 }
 ~~~
-
+***
 
 ### Text 인식 (Text Recognition)
 
@@ -538,4 +538,170 @@ Profile에서 5장의 책상사진을 업로드하면 이 기능을 사용할 �
 
 >[OpenCV Histogram Compare 설명](https://docs.opencv.org/master/d8/dc8/tutorial_histogram_comparison.html)
 
-Color Histogram를 통한 출석체크가 수행되는 과정
+>Color Histogram를 통한 출석체크가 수행되는 과정
+>1. Profile (설정)에서 5장의 책상 사진을 미리 등록한다.
+>2. 등록해놓은 책상 사진과 최대한 같은 각도로 책상을 촬영한다.
+>3. 등록돼있는 사진들과 출석체크를 위해 촬영한 사진과 비교하여 일치율을 설정해놓은 Threshold와 비교하여 한 장이라도 만족할 시, **AttendanceCheckActivity**로  true 값을 전달한다.
+>4. 등록한 사진 5장 모두 만족하지 않았을 경우, 촬영한 해당 사진을 등록할 것인지 Dialog를 통해 선택할 수 있다.    
+
+### Color Histogram Image Matching 출석체크
+
+**ImageMatchingActivity.java**
+
+Camera를 실행시켜주는 button `onClickListener`이다. 
+`onCreate()`에 checksize()도 함께 넣어준다. 여기서 checksize()는 출석체크 실패 시 image를 업로드 할 때 사용된다.
+~~~java
+btnCamera = (Button)findViewById(R.id.btnCamera);  
+btnCamera.setOnClickListener(new View.OnClickListener() {  
+    @Override  
+	public void onClick(View v) {    
+		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);  
+		startActivityForResult(intent, 0);  
+    }  
+});  
+  
+checksize();
+~~~
+Camera로 촬영한 후에 실행되는 method이다. 일치 여부를 나타내는 boolean변수를 false로, 비교를 성공한 image의 개수를 나타내는 count 값을 0으로 초기화해주고 `imageDownload()` method를 실행한다.
+~~~java
+@Override
+protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 0 && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            capturebmp = (Bitmap) extras.get("data");
+            CheckSuccess = false;
+            count = 0;
+            
+            imageDownload();
+        }
+}
+~~~
+등록되어 있는 image를 불러와서 방금 촬영한 image와 비교하는 `matching()` method를 실행한다.
+등록되어 있는 image는 bitmap 변수에 저장하고 방금촬영한 image는 matching()에 파라미터로 전달한다.
+한 장의 사진과 비교할 때마다 count값이 증가하며 총 5 장의 사진을 다 비교하고 true값을 반환하였다면, **ImageMatchingActivity**를 종료하고 true 값을 **AttendanceCheckActivity**로 전달한다.
+~~~java
+public void imageDownload(){
+    storageRef.listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
+        @Override
+        public void onSuccess(ListResult listResult) {
+            for (StorageReference item : listResult.getItems()) {
+            
+                final long ONE_MEGABYTE = 1024 * 1024;
+                item.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                    @Override
+                    public void onSuccess(byte[] bytes) {
+	                    ...
+                        bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                        matching(capturebmp);
+                        count++;
+
+                        if(count== 5){
+                            if(CheckSuccess == true){
+	                            ...
+                                Intent intent = new Intent();
+                                intent.putExtra("checkMatching", CheckSuccess);
+                                setResult(RESULT_OK, intent);
+                                finish();
+                            }else {
+                                if(waitingDialog.isShowing()){
+                                    waitingDialog.dismiss();
+                                }
+                                dialogUpload();
+                            }
+                        }
+
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) { }
+                });
+            }
+        }
+    })
+    .addOnFailureListener(new OnFailureListener() {
+        @Override
+        public void onFailure(@NonNull Exception e) { }
+    });
+}
+~~~
+등록된 사진과 촬영한 사진을 비교하는 method이다. 촬영한 사진을 파라미터로 받아와서 등록되어 있는 사진과 비교한다.
+이 mathod를 위의 `imageDownload()` 에서 총 5번 수행하여 5장의 사진 모두 비교한다. 
+각각의 이미지를 bitmap에서 Mat으로 변환을 해주고, [`Imgproc.cvtColor()`](https://docs.opencv.org/master/d8/d01/group__imgproc__color__conversions.html#ga397ae87e1288a81d2363b61574eb8cab)를 통해 HSV로 변환한다.
+[`Imgproc.calcHist()`](https://docs.opencv.org/master/d6/dc7/group__imgproc__hist.html#ga4b2b5fd75503ff9e6844cc4dcdaed35d)를 통해 color Histogram을 계산한 후, [`Core.normalize()`](https://docs.opencv.org/master/dc/d84/group__core__basic.html#ga1b6a396a456c8b6c6e4afd8591560d80)로 정규화해준다.
+각각 정규화까지 끝난 image를 [`Imgproc.compareHist()`](https://docs.opencv.org/master/d6/dc7/group__imgproc__hist.html#gaf4190090efa5c47cb367cf97a9a519bd)로 color Histogram을 비교하여 일치율을 `metric_val`변수에 넣어준다.
+metric_val값이 0에 가까울수록 일치율이 높은 결과이다.
+같은 책상사진을 촬영하였을 때, 다른 책상 혹은 다른 곳을 촬영하였을 때 등 여러 테스트를 거쳐 0.2값보다 작은 경우를 일치하는 것으로 판단하도록 구현하였다.
+0.2값보다 작은 image가 하나라도 존재한다면 true 값을 반환하여 출석체크가 가능하다.
+~~~java
+public void matching( Bitmap bitmap2){
+
+    if(!OpenCVLoader.initDebug()){
+        Log.d("start error : ", "OpenCV not loaded");
+    } else {
+        Log.d("start : ", "OpenCV loaded");
+        try {
+            Mat hist_1 = new Mat();
+            Mat hist_2 = new Mat();
+
+            MatOfFloat ranges = new MatOfFloat(0f, 256f);
+            MatOfInt histSize = new MatOfInt(25);
+			//등록된 사진
+            img1 = new Mat();
+            Utils.bitmapToMat(bitmap, img1);
+            Imgproc.cvtColor(img1, img1, COLOR_BGR2HSV);
+            Imgproc.calcHist(Arrays.asList(img1), new MatOfInt(0), new Mat(), hist_1, histSize, ranges);
+            Core.normalize(hist_1, hist_1, 0, 1, Core.NORM_MINMAX);
+			//촬영한 사진
+            img2 = new Mat();
+            Utils.bitmapToMat(bitmap2, img2);
+            Imgproc.cvtColor(img2, img2, COLOR_BGR2HSV);
+            Imgproc.calcHist(Arrays.asList(img2), new MatOfInt(0), new Mat(), hist_2, histSize, ranges);
+            Core.normalize(hist_2, hist_2, 0, 1, Core.NORM_MINMAX);
+			//두 사진 비교 후 결과
+            metric_val = Imgproc.compareHist(hist_1, hist_2, Imgproc.HISTCMP_BHATTACHARYYA);// 0이 일치
+            if(metric_val < 0.2) {
+                CheckSuccess = true;
+            }
+            
+        } catch (Exception e) { }
+    }
+}
+~~~
+출석체크에 실패했을 시 띄워주는 dialog이다. 
+- 등록 버튼을 누를 시, 가장 오래된 사진을 하나 삭제하고 촬영한 해당 사진을 등록한다.
+- 취소 버튼을 누를 시, 등록을 하지않고 다시 출석체크를 진행해야 한다.
+~~~java
+public void dialogUpload(){
+    activity = this;
+
+    AlertDialog.Builder alertdialog = new AlertDialog.Builder(activity);
+    alertdialog.setMessage("해당 사진을 등록하시겠습니까?");
+
+    // 등록 버튼
+    alertdialog.setPositiveButton("등록", new DialogInterface.OnClickListener(){
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            checksize();
+            imageUpload(capturebmp);
+        }
+    });
+
+    // 취소 버튼
+    alertdialog.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            Toast.makeText(activity, "취소 되었습니다.", Toast.LENGTH_SHORT).show();
+        }
+    });
+
+
+    AlertDialog alert = alertdialog.create();
+    alert.setTitle("출석체크 실패");
+
+    alert.show();
+
+}
+~~~
