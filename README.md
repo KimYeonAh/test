@@ -172,40 +172,40 @@ Skip button을 클릭시 수행되는 `dialogSkip()` method이다.<br>
 AlertDialog를 띄워 출석 여부를 고를 수 있다.
 ~~~java
 public void dialogSkip(){
-activity = this;
-AlertDialog.Builder alertdialog = new AlertDialog.Builder(activity);
-alertdialog.setMessage("출석여부를 고르세요.");
+    activity = this;
+    AlertDialog.Builder alertdialog = new AlertDialog.Builder(activity);
+    alertdialog.setMessage("출석여부를 고르세요.");
 
-// 확인버튼 - 결석
-alertdialog.setPositiveButton("결석", new DialogInterface.OnClickListener(){
-    @Override
-    public void onClick(DialogInterface dialog, int which) {
-	Toast.makeText(activity, "결석처리 되었습니다.", Toast.LENGTH_SHORT).show();
-	alarmOff();
-	finish();
-    }
-});
-// 취소버튼
-alertdialog.setNegativeButton("출석", new DialogInterface.OnClickListener() {
-    @Override
-    public void onClick(DialogInterface dialog, int which) {
-	Toast.makeText(activity, "출석처리 되었습니다.", Toast.LENGTH_SHORT).show();
-	alarmOff();
-	checkDaysTotal(weeks);
-	finish();
-    }
-});
-alertdialog.setNeutralButton("취소", new DialogInterface.OnClickListener(){
-    @Override
-    public void onClick(DialogInterface dialog, int id)
-    {
-	Toast.makeText(activity, "'취소'버튼을 누르셨습니다.", Toast.LENGTH_SHORT).show();
-	mediaRestart();
-    }
-});
-AlertDialog alert = alertdialog.create();
-alert.setTitle("Skip");
-alert.show();
+    // 확인버튼 - 결석
+    alertdialog.setPositiveButton("결석", new DialogInterface.OnClickListener(){
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+	    Toast.makeText(activity, "결석처리 되었습니다.", Toast.LENGTH_SHORT).show();
+	    alarmOff();
+	    finish();
+        }
+    });
+    // 취소버튼
+    alertdialog.setNegativeButton("출석", new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+	    Toast.makeText(activity, "출석처리 되었습니다.", Toast.LENGTH_SHORT).show();
+	    alarmOff();
+	    checkDaysTotal(weeks);
+	    finish();
+        }
+    });
+    alertdialog.setNeutralButton("취소", new DialogInterface.OnClickListener(){
+        @Override
+        public void onClick(DialogInterface dialog, int id)
+        {
+	    Toast.makeText(activity, "'취소'버튼을 누르셨습니다.", Toast.LENGTH_SHORT).show();
+	    mediaRestart();
+        }
+    });
+    AlertDialog alert = alertdialog.create();
+    alert.setTitle("Skip");
+    alert.show();
 }
 ~~~
 >[AttendanceCheckActivity.java 전체 코드](https://github.com/JJinTae/MakeYouStudy/blob/master/app/src/main/java/com/android/MakeYouStudy/AttendanceCheckActivity.java)
@@ -366,18 +366,14 @@ private void runDetector(Bitmap bitmap) {
 				    })
 				    .addOnFailureListener(new OnFailureListener() {
 					@Override
-					public void onFailure(@NonNull Exception e) {
-				Log.d("EDMTERROR", e.getMessage());
-			    }
-			});
+					public void onFailure(@NonNull Exception e) { Log.d("EDMTERROR", e.getMessage()); }
+		});
 
 	    }
 	    else
 	    {
 	        Toast.makeText(ImageLabelActivity.this, "인터넷을 체크하고 다시 촬영해주세요.", Toast.LENGTH_LONG).show();
-	        if(waitingDialog.isShowing()) {
-		    waitingDialog.dismiss();
-	        }
+	        ...
 	    }
         }
     });
@@ -392,8 +388,6 @@ private void processDataResultCloud(List<FirebaseVisionImageLabel> firebaseVisio
         for(FirebaseVisionImageLabel label : firebaseVisionCloudLabels)
         {
             String labeling = label.getText();
-            Log.d("Label Success", "True");
-            Log.d("confidence", ""+ label.getConfidence() +""+ label.getText());
 
             Intent intent = new Intent();
             intent.putExtra("labeling", labeling);
@@ -409,9 +403,7 @@ private void processDataResultCloud(List<FirebaseVisionImageLabel> firebaseVisio
         setResult(RESULT_OK, intent);
         finish();
     }
-    if(waitingDialog.isShowing()) {
-        waitingDialog.dismiss();
-    }
+    ...
 }
 ~~~
 >[ImageLabelActivity.java 전체 코드](https://github.com/JJinTae/MakeYouStudy/blob/master/app/src/main/java/com/android/MakeYouStudy/ImageLabelActivity.java)
@@ -455,7 +447,7 @@ private void dispatchTakePictureIntent() {
     }  
 }
 ~~~
-카메라로 촬영한 후에 실행되는 method이다.  
+카메라로 촬영한 후에 실행되는 method이다.<br>
 image를 Bitmap으로 저장하고 imageView에 촬영된 사진을 보여준 후, `detectTextFromImage()` method를 실행한다.
 ~~~java
 @Override  
@@ -495,7 +487,6 @@ private void detectTextFromImage()
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Toast.makeText(TextRecognitionActivity.this, "Error: "+ e.getMessage(), Toast.LENGTH_SHORT).show();
-                        Log.d("Error: ", e.getMessage());
                     }
                 });
             }else {
@@ -579,15 +570,15 @@ Camera로 촬영한 후에 실행되는 method이다. 일치 여부를 나타내
 ~~~java
 @Override
 protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 0 && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
-            capturebmp = (Bitmap) extras.get("data");
-            CheckSuccess = false;
-            count = 0;
+    super.onActivityResult(requestCode, resultCode, data);
+    if (requestCode == 0 && resultCode == RESULT_OK) {
+        Bundle extras = data.getExtras();
+        capturebmp = (Bitmap) extras.get("data");
+        CheckSuccess = false;
+        count = 0;
             
-            imageDownload();
-        }
+        imageDownload();
+    }
 }
 ~~~
 등록되어 있는 image를 불러와서 방금 촬영한 image와 비교하는 `matching()` method를 실행한다.<br>
@@ -604,7 +595,7 @@ public void imageDownload(){
                 item.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
                     @Override
                     public void onSuccess(byte[] bytes) {
-	                    ...
+	                ...
                         bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
 
                         matching(capturebmp);
@@ -612,15 +603,13 @@ public void imageDownload(){
 
                         if(count== 5){
                             if(CheckSuccess == true){
-	                            ...
+	                        ...
                                 Intent intent = new Intent();
                                 intent.putExtra("checkMatching", CheckSuccess);
                                 setResult(RESULT_OK, intent);
                                 finish();
                             }else {
-                                if(waitingDialog.isShowing()){
-                                    waitingDialog.dismiss();
-                                }
+                                ...
                                 dialogUpload();
                             }
                         }
@@ -686,7 +675,7 @@ public void matching( Bitmap bitmap2){
 - 등록 버튼을 누를 시, 가장 오래된 사진을 하나 삭제하고 촬영한 해당 사진을 등록한다.
 - 취소 버튼을 누를 시, 등록을 하지않고 다시 출석체크를 진행해야 한다.
 
-여기서 사용되는 [`checksize()`](https://github.com/JJinTae/MakeYouStudy/blob/c3e8c9d4b3280c0fae93a51494ed29fe4fca873c/app/src/main/java/com/android/MakeYouStudy/ImageMatchingActivity.java#L285)와 [`imageUpload()`](https://github.com/JJinTae/MakeYouStudy/blob/c3e8c9d4b3280c0fae93a51494ed29fe4fca873c/app/src/main/java/com/android/MakeYouStudy/ImageMatchingActivity.java#L256)는 ProfileActivity와 비슷하여 Link로 남겨두었다.
+여기서 사용되는 [`checksize()`](https://github.com/JJinTae/MakeYouStudy/blob/c3e8c9d4b3280c0fae93a51494ed29fe4fca873c/app/src/main/java/com/android/MakeYouStudy/ImageMatchingActivity.java#L285)와 [`imageUpload()`](https://github.com/JJinTae/MakeYouStudy/blob/c3e8c9d4b3280c0fae93a51494ed29fe4fca873c/app/src/main/java/com/android/MakeYouStudy/ImageMatchingActivity.java#L256)는 ProfileActivity에 있는 method와 동일하여 Link로 남겨두었다.
 ~~~java
 public void dialogUpload(){
     activity = this;
