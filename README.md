@@ -1,7 +1,7 @@
 #  출석체크 
 
-출석체크 기능은 공부를 하기 위해 책상에 앉을 수 있도록 도와주는 기능이다. 
-Time Table에서 시간표를 설정한 후 지정한 시간에 알람이 울리면 출석체크를 실행한다.
+출석체크 기능은 공부를 하기 위해 책상에 앉을 수 있도록 도와주는 기능이다. <br>
+Time Table에서 시간표를 설정한 후 지정한 시간에 알람이 울리면 출석체크를 실행한다.<br>
 출석체크 방법에는 세 가지가 있다.
 - firebase ML Kit를 이용한 사물(책상)인식
 - firebase ML Kit를 이용한 Text 인식 
@@ -14,7 +14,8 @@ Time Table에서 시간표를 설정한 후 지정한 시간에 알람이 울리
 
 **AttendanceCheckActivity.java**
 
-알람이 울릴 때, 어떤 방식으로 출석체크를 할지 선택하면서, 선택한 방식으로 출석체크 후 출석과 결석을 판단해주는 Activity이다.  총 네 가지의 button이 존재한다.
+알람이 울릴 때, 어떤 방식으로 출석체크를 할지 선택하면서, 선택한 방식으로 출석체크 후 출석과 결석을 판단해주는 Activity이다.<br>
+총 네 가지의 button이 존재한다.
 
 - button을 클릭하면 해당 Activity로 이동하여 출석체크 하는 동안 알람이 일시정지된다. 
 
@@ -80,7 +81,7 @@ rnd = new Random();
 ></string-array>
 >~~~
 
-Text 인식을 이용한 출석체크 버튼을 눌렀을 경우 실행되는 textRecognition() method 이다.
+Text 인식을 이용한 출석체크 버튼을 눌렀을 경우 실행되는 textRecognition() method 이다.<br>
 랜덤으로 randomText배열에 들어가 있는 영어단어 하나를 함께 TextRecognitionActivity로 보내준다. 
 ~~~java
 public void textRecognition(){  
@@ -101,7 +102,7 @@ final int IMAGE_MATCHING_ACTIVITY = 3; // Image Matching Activity
 ~~~
 
 
-startActivityForResult를 사용하여 다른 Activity를 실행해줬을 경우, onActivityResult를 통해 Activity의 결과를 가져와 출석체크 출결여부를 결정한다.
+startActivityForResult를 사용하여 다른 Activity를 실행해줬을 경우, onActivityResult를 통해 Activity의 결과를 가져와 출석체크 출결여부를 결정한다.<br>
 Activity의 구분은 위에서 함께 넘겨준 requestCode로 구분할 수 있다.
 
 - 출석체크 완료 시, 출석 count를 증가시키고 알람과 Activity를 꺼준다.
@@ -165,7 +166,7 @@ protected void onActivityResult(int requestCode, int resultCode, @Nullable Inten
 	}  
 }
 ~~~
-Skip button을 클릭시 수행되는 dialogSkip() method이다.
+Skip button을 클릭시 수행되는 dialogSkip() method이다.<br>
 AlertDialog를 띄워 출석 여부를 고를 수 있다.
 ~~~java
 public void dialogSkip(){  
@@ -332,8 +333,8 @@ cameraView.addCameraKitListener(new CameraKitEventListener() {
 	public void onVideo(CameraKitVideo cameraKitVideo) { }  
 });
 ~~~
-위의 CameraKitListener에서 사용한 runDetector() method이다.
-아까 만들어준 InternetCheck.java 를 통해 인터넷을 체크한 후 , image에서 사물 인식 confidenceThreshold를 설정해준다.
+위의 CameraKitListener에서 사용한 runDetector() method이다.<br>
+아까 만들어준 InternetCheck.java 를 통해 인터넷을 체크한 후 , image에서 사물 인식 confidenceThreshold를 설정해준다.<br>
 설정한 confidenceThreshold의 값보다 높은 값을 가지는 Label이 반환한다.
 ~~~java
 private void runDetector(Bitmap bitmap) {
@@ -375,7 +376,7 @@ private void runDetector(Bitmap bitmap) {
      });
  }
 ~~~
-위의 runDetector() 에서 사용한 processDataResultCloud() method 이다.
+위의 runDetector() 에서 사용한 processDataResultCloud() method 이다.<br>
 runDetector()에서 인식한 Label을 넘겨받아 Label 값이 존재할 경우 AttendanceCheckActivity로 Label 값을 넘겨주면서 ImageLabelActivity를 종료한다.
 ~~~java
 private void processDataResultCloud(List<FirebaseVisionImageLabel> firebaseVisionCloudLabels) {  
@@ -458,8 +459,8 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 >Firebase ML Kit에 대한 method 설명은 아래 링크를 참고하면서 보면 도움이 된다. 
 >[Firebase ML Kit Text Recognition 설명 바로가기](https://firebase.google.com/docs/ml-kit/android/recognize-text)
 
-위의 카메라로 촬영한 후에 실행되는 method에서의 `detectTextFromImage()` method이다.
-인터넷이 연결되어 있을 때, 촬영된 image에서 Text를 인식하고 성공했을 시에  [`FirebaseVisionText`](https://firebase.google.com/docs/reference/android/com/google/firebase/ml/vision/text/FirebaseVisionText) 객체가 성공 리스너에 전달된다.
+위의 카메라로 촬영한 후에 실행되는 method에서의 `detectTextFromImage()` method이다.<br>
+인터넷이 연결되어 있을 때, 촬영된 image에서 Text를 인식하고 성공했을 시에  [`FirebaseVisionText`](https://firebase.google.com/docs/reference/android/com/google/firebase/ml/vision/text/FirebaseVisionText) 객체가 성공 리스너에 전달된다.<br>
  
 `displayTextFromImage()` method에 `FirebaseVisionText` 객체를 파라미터로 전달하여 실행한다.
 >`FirebaseVisionText` 객체는 이미지에서 인식된 전체 텍스트 및 0개 이상의 [`TextBlock`](https://firebase.google.com/docs/reference/android/com/google/firebase/ml/vision/text/FirebaseVisionText.TextBlock) 객체를 포함한다.
@@ -491,7 +492,7 @@ private void detectTextFromImage()
     });  
  }
 ~~~
-`TextBlock` 를 List에 넣어주고, List의 size가 0일 때는 image에서 Text가 인식되지 않은 것이기 때문에 textView에 재촬영을 요구하는 글을 표시한다.
+`TextBlock` 를 List에 넣어주고, List의 size가 0일 때는 image에서 Text가 인식되지 않은 것이기 때문에 textView에 재촬영을 요구하는 글을 표시한다.<br>
 Text가 인식된 경우에는 Text와 AttendanceCheckActivity에서 전달받은 단어를 `check()` method의 파라미터로 전달하여 실행한다. 
 ~~~java
 private void displayTextFromImage(FirebaseVisionText firebaseVisionText) {  
@@ -509,7 +510,7 @@ private void displayTextFromImage(FirebaseVisionText firebaseVisionText) {
     }  
 }
 ~~~
-제시된 단어와 촬영하여 인식된 단어가 같은지 확인하는 `check()` method이다.
+제시된 단어와 촬영하여 인식된 단어가 같은지 확인하는 `check()` method이다.<br>
 두 단어가 일치할 시, 현재 Activity가 종료되면서 AttendanceCheckActivity로 true값을 전달한다.
 ~~~java
 public void check(String text, String data){  
@@ -529,7 +530,7 @@ public void check(String text, String data){
 
 ## OpenCV를 이용한 출석체크
 
-OpenCV를 이용한 출석체크를 하기위해서는, 미리 등록된 5장의 책상 사진이 존재해야한다.
+OpenCV를 이용한 출석체크를 하기위해서는, 미리 등록된 5장의 책상 사진이 존재해야한다.<br>
 Profile에서 5장의 책상사진을 업로드하면 이 기능을 사용할 수 있다.
 - OpenCV의 Color Histogram을 이용하여 두 장의 Image를 비교하는 기능을 구현하였다. 
 - Color Histogram은 조명에 영향을 받을 수 있기 때문에 여러 장의 사진을 등록하여 비교한다.
@@ -548,7 +549,7 @@ Profile에서 5장의 책상사진을 업로드하면 이 기능을 사용할 �
 
 **ImageMatchingActivity.java**
 
-Camera를 실행시켜주는 button `onClickListener`이다. 
+Camera를 실행시켜주는 button `onClickListener`이다. <br>
 `onCreate()`에 checksize()도 함께 넣어준다. 여기서 checksize()는 출석체크 실패 시 image를 업로드 할 때 사용된다.
 ~~~java
 btnCamera = (Button)findViewById(R.id.btnCamera);  
@@ -577,8 +578,8 @@ protected void onActivityResult(int requestCode, int resultCode, @Nullable Inten
         }
 }
 ~~~
-등록되어 있는 image를 불러와서 방금 촬영한 image와 비교하는 `matching()` method를 실행한다.
-등록되어 있는 image는 bitmap 변수에 저장하고 방금촬영한 image는 matching()에 파라미터로 전달한다.
+등록되어 있는 image를 불러와서 방금 촬영한 image와 비교하는 `matching()` method를 실행한다.<br>
+등록되어 있는 image는 bitmap 변수에 저장하고 방금촬영한 image는 matching()에 파라미터로 전달한다.<br>
 한 장의 사진과 비교할 때마다 count값이 증가하며 총 5 장의 사진을 다 비교하고 true값을 반환하였다면, **ImageMatchingActivity**를 종료하고 true 값을 **AttendanceCheckActivity**로 전달한다.
 ~~~java
 public void imageDownload(){
@@ -626,13 +627,13 @@ public void imageDownload(){
     });
 }
 ~~~
-등록된 사진과 촬영한 사진을 비교하는 method이다. 촬영한 사진을 파라미터로 받아와서 등록되어 있는 사진과 비교한다.
-이 mathod를 위의 `imageDownload()` 에서 총 5번 수행하여 5장의 사진 모두 비교한다. 
-각각의 이미지를 bitmap에서 Mat으로 변환을 해주고, [`Imgproc.cvtColor()`](https://docs.opencv.org/master/d8/d01/group__imgproc__color__conversions.html#ga397ae87e1288a81d2363b61574eb8cab)를 통해 HSV로 변환한다.
-[`Imgproc.calcHist()`](https://docs.opencv.org/master/d6/dc7/group__imgproc__hist.html#ga4b2b5fd75503ff9e6844cc4dcdaed35d)를 통해 color Histogram을 계산한 후, [`Core.normalize()`](https://docs.opencv.org/master/dc/d84/group__core__basic.html#ga1b6a396a456c8b6c6e4afd8591560d80)로 정규화해준다.
-각각 정규화까지 끝난 image를 [`Imgproc.compareHist()`](https://docs.opencv.org/master/d6/dc7/group__imgproc__hist.html#gaf4190090efa5c47cb367cf97a9a519bd)로 color Histogram을 비교하여 일치율을 `metric_val`변수에 넣어준다.
-metric_val값이 0에 가까울수록 일치율이 높은 결과이다.
-같은 책상사진을 촬영하였을 때, 다른 책상 혹은 다른 곳을 촬영하였을 때 등 여러 테스트를 거쳐 0.2값보다 작은 경우를 일치하는 것으로 판단하도록 구현하였다.
+등록된 사진과 촬영한 사진을 비교하는 method이다. 촬영한 사진을 파라미터로 받아와서 등록되어 있는 사진과 비교한다.<br>
+이 mathod를 위의 `imageDownload()` 에서 총 5번 수행하여 5장의 사진 모두 비교한다. <br>
+각각의 이미지를 bitmap에서 Mat으로 변환을 해주고, [`Imgproc.cvtColor()`](https://docs.opencv.org/master/d8/d01/group__imgproc__color__conversions.html#ga397ae87e1288a81d2363b61574eb8cab)를 통해 HSV로 변환한다.<br>
+[`Imgproc.calcHist()`](https://docs.opencv.org/master/d6/dc7/group__imgproc__hist.html#ga4b2b5fd75503ff9e6844cc4dcdaed35d)를 통해 color Histogram을 계산한 후, [`Core.normalize()`](https://docs.opencv.org/master/dc/d84/group__core__basic.html#ga1b6a396a456c8b6c6e4afd8591560d80)로 정규화해준다.<br>
+각각 정규화까지 끝난 image를 [`Imgproc.compareHist()`](https://docs.opencv.org/master/d6/dc7/group__imgproc__hist.html#gaf4190090efa5c47cb367cf97a9a519bd)로 color Histogram을 비교하여 일치율을 `metric_val`변수에 넣어준다.<br>
+metric_val값이 0에 가까울수록 일치율이 높은 결과이다.<br>
+같은 책상사진을 촬영하였을 때, 다른 책상 혹은 다른 곳을 촬영하였을 때 등 여러 테스트를 거쳐 0.2값보다 작은 경우를 일치하는 것으로 판단하도록 구현하였다.<br>
 0.2값보다 작은 image가 하나라도 존재한다면 true 값을 반환하여 출석체크가 가능하다.
 ~~~java
 public void matching( Bitmap bitmap2){
