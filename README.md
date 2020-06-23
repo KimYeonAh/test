@@ -461,7 +461,7 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     }  
 }
 ~~~
->Firebase ML Kit에 대한 method 설명은 아래 링크를 참고하면서 보면 도움이 될 것이다. 
+>Firebase ML Kit에 대한 method 설명은 아래 링크를 참고하면서 보면 도움이 될 것이다. <br>
 >[Firebase ML Kit Text Recognition 설명 바로가기](https://firebase.google.com/docs/ml-kit/android/recognize-text)
 
 위의 카메라로 촬영한 후에 실행되는 method에서의 `detectTextFromImage()` method이다.<br>
@@ -628,6 +628,9 @@ public void imageDownload(){
     });
 }
 ~~~
+>[Firebase Storage File Download 사용법](https://firebase.google.com/docs/storage/android/download-files)
+>[Firebase Storage File List 가져오기](https://firebase.google.com/docs/storage/android/list-files)
+
 등록된 사진과 촬영한 사진을 비교하는 method이다. 촬영한 사진을 파라미터로 받아와서 등록되어 있는 사진과 비교한다.<br>
 이 mathod를 위의 `imageDownload()` 에서 총 5번 수행하여 5장의 사진 모두 비교한다. <br>
 각각의 이미지를 bitmap에서 Mat으로 변환을 해주고, [`Imgproc.cvtColor()`](https://docs.opencv.org/master/d8/d01/group__imgproc__color__conversions.html#ga397ae87e1288a81d2363b61574eb8cab)를 통해 HSV로 변환한다.<br>
