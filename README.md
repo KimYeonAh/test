@@ -652,19 +652,22 @@ public void matching( Bitmap bitmap2){
 
             MatOfFloat ranges = new MatOfFloat(0f, 256f);
             MatOfInt histSize = new MatOfInt(25);
-			//등록된 사진
+	    
+	    //등록된 사진
             img1 = new Mat();
             Utils.bitmapToMat(bitmap, img1);
             Imgproc.cvtColor(img1, img1, COLOR_BGR2HSV);
             Imgproc.calcHist(Arrays.asList(img1), new MatOfInt(0), new Mat(), hist_1, histSize, ranges);
             Core.normalize(hist_1, hist_1, 0, 1, Core.NORM_MINMAX);
-			//촬영한 사진
+	    
+	    //촬영한 사진
             img2 = new Mat();
             Utils.bitmapToMat(bitmap2, img2);
             Imgproc.cvtColor(img2, img2, COLOR_BGR2HSV);
             Imgproc.calcHist(Arrays.asList(img2), new MatOfInt(0), new Mat(), hist_2, histSize, ranges);
             Core.normalize(hist_2, hist_2, 0, 1, Core.NORM_MINMAX);
-			//두 사진 비교 후 결과
+	    
+	    //두 사진 비교 후 결과
             metric_val = Imgproc.compareHist(hist_1, hist_2, Imgproc.HISTCMP_BHATTACHARYYA);// 0이 일치
             if(metric_val < 0.2) {
                 CheckSuccess = true;
