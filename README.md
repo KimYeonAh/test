@@ -1,3 +1,4 @@
+
 #  출석체크 
 
 출석체크 기능은 공부를 하기 위해 책상에 앉을 수 있도록 도와주는 기능이다. <br>
@@ -19,7 +20,7 @@ Time Table에서 시간표를 설정한 후 지정한 시간에 알람이 울리
 
 - button을 클릭하면 해당 Activity로 이동하여 출석체크 하는 동안 알람이 일시정지된다. 
 
-아래는 각 button들의 `onClickListener`이다.
+아래는 각 button들의 `onClickListener()`이다.
 ~~~java
 btnCheck = (Button)findViewById(R.id.btnCheck);
 btnCheck.setOnClickListener(new View.OnClickListener() {
@@ -208,10 +209,11 @@ public void dialogSkip(){
     alert.show();  
 }
 ~~~
+>[AttendanceCheckActivity.java 전체 코드](https://github.com/JJinTae/MakeYouStudy/blob/master/app/src/main/java/com/android/MakeYouStudy/AttendanceCheckActivity.java)
 
 ## Firebase ML Kit를 이용한 출석체크 
 
-Firebase ML Kit를 이용한 출석체크 기능으로는 사물인식 (Image Labeling), 문자 인식 (Text Recognition) 이 있다. 
+Firebase ML Kit를 이용한 출석체크 기능으로는 **사물인식 (Image Labeling)**, **Text 인식 (Text Recognition)** 이 있다. 
 - Firebase ML Kit를 사용하기 위해서는 아래와 같이 `build.gradle`에 정의해주어야 한다.
 
 **build.gradle (:app)**
@@ -269,7 +271,7 @@ public class InternetCheck extends AsyncTask<Void,Void,Boolean> {
 >4. **ImageLabelActivity**가 종료되면서 반환된 Label을 **AttendanceCheckActivity**로 넘겨준다.
 >5. **AttendanceCheckActivity**에서 Label 값이 책상이 맞는지 확인한다. 
  
- Firebase ML Kit의 Image Labeling를 사용하기 위해 아래와 같이 build.gradle에 정의해주어야 한다.
+ Firebase ML Kit의 Image Labeling를 사용하기 위해 아래와 같이 `build.gradle`에 정의해주어야 한다.
 
 **build.gradle (:app)**
 ~~~java
@@ -277,7 +279,7 @@ implementation 'com.google.firebase:firebase-ml-vision-image-label-model:19.0.0'
 ~~~
 >[Firebase MK Kit Image Labeling 설명 바로가기](https://firebase.google.com/docs/ml-kit/android/label-images)
 
-CameraKit를 사용하기 위해 아래와 같이 build.gradle에  정의해주어야 한다.
+CameraKit를 사용하기 위해 아래와 같이 `build.gradle`에  정의해주어야 한다.
 
 **build.gradle (:app)**
 ~~~java
@@ -287,7 +289,7 @@ implementation 'com.wonderkiln:camerakit:0.13.1'
 
 
 **ImageLabelActivity.java**
-- ImageLabelActivity는 cameraKit의 cameraView와 Detect하기 위한 Button을 사용한다.
+- ImageLabelActivity.java는 cameraKit의 cameraView와 Detect를 수행하는 Button을 사용한다.
 
 >activity_image_label.xml
 cameraKit의 cameraView를 사용하기 위하여 아래와 같이 layout에 추가한다.
@@ -299,7 +301,7 @@ cameraKit의 cameraView를 사용하기 위하여 아래와 같이 layout에 추
 >  android:layout_above="@+id/btn_detect">
 ></com.wonderkiln.camerakit.CameraView>
 >~~~
-아래 코드는 Detect button의 onClickListener이다. button을 클릭하면 cameraView가 실행되고 촬영된다.
+아래 코드는 Detect button의 `onClickListener`이다. button을 클릭하면 cameraView가 실행되고 촬영된다.
 ~~~java
 btnDetect.setOnClickListener(new View.OnClickListener(){  
     @Override  
@@ -310,7 +312,7 @@ btnDetect.setOnClickListener(new View.OnClickListener(){
 });
 ~~~
 
-CameraKitListener 부분이다. cameraView에 바로 camera를 띄워 촬영한다.
+`CameraKitListener()` 부분이다. cameraView에 바로 camera를 띄워 촬영한다.
 ~~~java
 cameraView.addCameraKitListener(new CameraKitEventListener() {  
     @Override  
@@ -333,7 +335,7 @@ cameraView.addCameraKitListener(new CameraKitEventListener() {
 	public void onVideo(CameraKitVideo cameraKitVideo) { }  
 });
 ~~~
-위의 CameraKitListener에서 사용한 `runDetector()` method이다.<br>
+위의 `CameraKitListener()`에서 사용한 `runDetector()` method이다.<br>
 아까 만들어준 InternetCheck.java 를 통해 인터넷을 체크한 후 , image에서 사물 인식 confidenceThreshold를 설정해준다.<br>
 설정한 confidenceThreshold의 값보다 높은 값을 가지는 Label이 반환한다.
 ~~~java
@@ -402,6 +404,7 @@ private void processDataResultCloud(List<FirebaseVisionImageLabel> firebaseVisio
     ... 
 }
 ~~~
+>[ImageLabelActivity.java 전체 코드](https://github.com/JJinTae/MakeYouStudy/blob/master/app/src/main/java/com/android/MakeYouStudy/ImageLabelActivity.java)
 ***
 
 ### Text 인식 (Text Recognition)
@@ -456,14 +459,14 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 	}  
 }
 ~~~
->Firebase ML Kit에 대한 method 설명은 아래 링크를 참고하면서 보면 도움이 된다. 
+>Firebase ML Kit에 대한 method 설명은 아래 링크를 참고하면서 보면 도움이 될 것이다. 
 >[Firebase ML Kit Text Recognition 설명 바로가기](https://firebase.google.com/docs/ml-kit/android/recognize-text)
 
 위의 카메라로 촬영한 후에 실행되는 method에서의 `detectTextFromImage()` method이다.<br>
 인터넷이 연결되어 있을 때, 촬영된 image에서 Text를 인식하고 성공했을 시에  [`FirebaseVisionText`](https://firebase.google.com/docs/reference/android/com/google/firebase/ml/vision/text/FirebaseVisionText) 객체가 성공 리스너에 전달된다.<br>
  
 `displayTextFromImage()` method에 `FirebaseVisionText` 객체를 파라미터로 전달하여 실행한다.
->`FirebaseVisionText` 객체는 이미지에서 인식된 전체 텍스트 및 0개 이상의 [`TextBlock`](https://firebase.google.com/docs/reference/android/com/google/firebase/ml/vision/text/FirebaseVisionText.TextBlock) 객체를 포함한다.
+> `FirebaseVisionText` 객체는 이미지에서 인식된 전체 텍스트 및 0개 이상의 [`TextBlock`](https://firebase.google.com/docs/reference/android/com/google/firebase/ml/vision/text/FirebaseVisionText.TextBlock) 객체를 포함한다.
 ~~~java
 private void detectTextFromImage()  
 {  
@@ -511,7 +514,7 @@ private void displayTextFromImage(FirebaseVisionText firebaseVisionText) {
 }
 ~~~
 제시된 단어와 촬영하여 인식된 단어가 같은지 확인하는 `check()` method이다.<br>
-두 단어가 일치할 시, 현재 Activity가 종료되면서 AttendanceCheckActivity로 true값을 전달한다.
+두 단어가 일치할 시, 현재 Activity가 종료되면서 **AttendanceCheckActivity**로 true값을 전달한다.
 ~~~java
 public void check(String text, String data){  
     if(text.equals(data)){  
@@ -527,6 +530,7 @@ public void check(String text, String data){
 	}  
 }
 ~~~
+>[TextRecognitionActivity.java 전체 코드](https://github.com/JJinTae/MakeYouStudy/blob/master/app/src/main/java/com/android/MakeYouStudy/TextRecognitionActivity.java)
 
 ## OpenCV를 이용한 출석체크
 
@@ -549,8 +553,7 @@ Profile에서 5장의 책상사진을 업로드하면 이 기능을 사용할 �
 
 **ImageMatchingActivity.java**
 
-Camera를 실행시켜주는 button `onClickListener`이다. <br>
-`onCreate()`에 checksize()도 함께 넣어준다. 여기서 checksize()는 출석체크 실패 시 image를 업로드 할 때 사용된다.
+Camera를 실행시켜주는 button `onClickListener`이다.
 ~~~java
 btnCamera = (Button)findViewById(R.id.btnCamera);  
 btnCamera.setOnClickListener(new View.OnClickListener() {  
@@ -560,8 +563,7 @@ btnCamera.setOnClickListener(new View.OnClickListener() {
 		startActivityForResult(intent, 0);  
     }  
 });  
-  
-checksize();
+
 ~~~
 Camera로 촬영한 후에 실행되는 method이다. 일치 여부를 나타내는 boolean변수를 false로, 비교를 성공한 image의 개수를 나타내는 count 값을 0으로 초기화해주고 `imageDownload()` method를 실행한다.
 ~~~java
@@ -579,7 +581,7 @@ protected void onActivityResult(int requestCode, int resultCode, @Nullable Inten
 }
 ~~~
 등록되어 있는 image를 불러와서 방금 촬영한 image와 비교하는 `matching()` method를 실행한다.<br>
-등록되어 있는 image는 bitmap 변수에 저장하고 방금촬영한 image는 matching()에 파라미터로 전달한다.<br>
+등록되어 있는 image는 bitmap 변수에 저장하고 방금촬영한 image는 `matching()`에 파라미터로 전달한다.<br>
 한 장의 사진과 비교할 때마다 count값이 증가하며 총 5 장의 사진을 다 비교하고 true값을 반환하였다면, **ImageMatchingActivity**를 종료하고 true 값을 **AttendanceCheckActivity**로 전달한다.
 ~~~java
 public void imageDownload(){
@@ -673,6 +675,8 @@ public void matching( Bitmap bitmap2){
 출석체크에 실패했을 시 띄워주는 dialog이다. 
 - 등록 버튼을 누를 시, 가장 오래된 사진을 하나 삭제하고 촬영한 해당 사진을 등록한다.
 - 취소 버튼을 누를 시, 등록을 하지않고 다시 출석체크를 진행해야 한다.
+
+여기서 사용되는 [`checksize()`](https://github.com/JJinTae/MakeYouStudy/blob/c3e8c9d4b3280c0fae93a51494ed29fe4fca873c/app/src/main/java/com/android/MakeYouStudy/ImageMatchingActivity.java#L285)와 [`imageUpload()`](https://github.com/JJinTae/MakeYouStudy/blob/c3e8c9d4b3280c0fae93a51494ed29fe4fca873c/app/src/main/java/com/android/MakeYouStudy/ImageMatchingActivity.java#L256)는 ProfileActivity와 비슷하여 Link로 남겨두었다.
 ~~~java
 public void dialogUpload(){
     activity = this;
@@ -706,3 +710,4 @@ public void dialogUpload(){
 
 }
 ~~~
+>[ImageMatchingActivity.java 전체 코드](https://github.com/JJinTae/MakeYouStudy/blob/c3e8c9d4b3280c0fae93a51494ed29fe4fca873c/app/src/main/java/com/android/MakeYouStudy/ImageMatchingActivity.java)
