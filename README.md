@@ -111,61 +111,61 @@ Activity의 구분은 위에서 함께 넘겨준 requestCode로 구분할 수 �
 ~~~java
 @Override
 protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-super.onActivityResult(requestCode, resultCode, data);
+    super.onActivityResult(requestCode, resultCode, data);
 
-switch (requestCode) {
-    case LABEL_ACTIVITY:
+    switch (requestCode) {
+        case LABEL_ACTIVITY:
 
-    String label = data.getStringExtra("labeling");
+        String label = data.getStringExtra("labeling");
 
-    if(label.equals("Desk") || label.equals("Table") ){
-	Toast.makeText(this, "Label 출석체크 완료 : "+label, Toast.LENGTH_SHORT).show();
-	alarmOff();
-	checkDaysTotal(weeks);
-	Log.d(TAG, "실행");
-	finish();
-    }
-    else if(label.equals("BackPressed")){
-	Toast.makeText(this, "Label 출석체크 취소", Toast.LENGTH_SHORT).show();
-	mediaRestart();
-    }
-    else {
-	Toast.makeText(this, "출석체크 실패 : "+label, Toast.LENGTH_SHORT).show();
-	count++;
-	mediaRestart();
-	Log.d("count_number", ""+count);
+        if(label.equals("Desk") || label.equals("Table") ){
+            Toast.makeText(this, "Label 출석체크 완료 : "+label, Toast.LENGTH_SHORT).show();
+            alarmOff();
+            checkDaysTotal(weeks);
+            Log.d(TAG, "실행");
+            finish();
+        }
+        else if(label.equals("BackPressed")){
+            Toast.makeText(this, "Label 출석체크 취소", Toast.LENGTH_SHORT).show();
+            mediaRestart();
+        }
+        else {
+            Toast.makeText(this, "출석체크 실패 : "+label, Toast.LENGTH_SHORT).show();
+            count++;
+            mediaRestart();
+            Log.d("count_number", ""+count);
 
-	if(count>=3){ // count 가 3일 때 (사물인식 출석체크 3번 실패 시) count = 0으로 셋팅후 textRecognition 메소드 실행(text 인식 출석체크 Activity 실행)
-	    count = 0;
-	    Log.d("count_reset", ""+count);
-	    textRecognition();
-	}
+            if(count>=3){ // count 가 3일 때 (사물인식 출석체크 3번 실패 시) count = 0으로 셋팅후 textRecognition 메소드 실행(text 인식 출석체크 Activity 실행)
+                count = 0;
+                Log.d("count_reset", ""+count);
+                textRecognition();
+            }
+        }
+        break;
+    case TEXT_ACTIVITY :
+        boolean checkValue = data.getBooleanExtra("checkValue", false);
+        if(checkValue == true){
+            Toast.makeText(this, "Text 출석체크 완료", Toast.LENGTH_SHORT).show();
+            alarmOff();
+            checkDaysTotal(weeks);
+            finish();
+        } else {
+            Toast.makeText(this, "Text 출석체크 취소", Toast.LENGTH_SHORT).show();
+            mediaRestart();
+        }
+        break;
+    case IMAGE_MATCHING_ACTIVITY :
+        boolean checkMatching = data.getBooleanExtra("checkMatching", false);
+        if(checkMatching == true){
+            Toast.makeText(this, "ImageMatching 출석체크 완료", Toast.LENGTH_SHORT).show();
+            alarmOff();
+            checkDaysTotal(weeks);
+            finish();
+        }else {
+            Toast.makeText(this, "ImageMatching 출석체크 취소", Toast.LENGTH_SHORT).show();
+            mediaRestart();
+        }
     }
-    break;
-case TEXT_ACTIVITY :
-    boolean checkValue = data.getBooleanExtra("checkValue", false);
-    if(checkValue == true){
-	Toast.makeText(this, "Text 출석체크 완료", Toast.LENGTH_SHORT).show();
-	alarmOff();
-	checkDaysTotal(weeks);
-	finish();
-    } else {
-	Toast.makeText(this, "Text 출석체크 취소", Toast.LENGTH_SHORT).show();
-	mediaRestart();
-    }
-    break;
-case IMAGE_MATCHING_ACTIVITY :
-    boolean checkMatching = data.getBooleanExtra("checkMatching", false);
-    if(checkMatching == true){
-	Toast.makeText(this, "ImageMatching 출석체크 완료", Toast.LENGTH_SHORT).show();
-	alarmOff();
-	checkDaysTotal(weeks);
-	finish();
-    }else {
-	Toast.makeText(this, "ImageMatching 출석체크 취소", Toast.LENGTH_SHORT).show();
-	mediaRestart();
-    }
-}
 }
 ~~~
 Skip button을 클릭시 수행되는 `dialogSkip()` method이다.<br>
