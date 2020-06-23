@@ -5,7 +5,7 @@ Time Table에서 시간표를 설정한 후 지정한 시간에 알람이 울리
 출석체크 방법에는 세 가지가 있다.
 - firebase ML Kit를 이용한 사물(책상)인식
 - firebase ML Kit를 이용한 Text 인식 
-- openCV를 이용한 color histogram image Matching
+- OpenCV를 이용한 Color Histogram Image Matching
 
 우선, firebase ML Kit와 openCV를 사용하기 위해 (2번)내용을 수행해야 한다.
 
@@ -423,7 +423,7 @@ Intent intent = getIntent();
 data = intent.getStringExtra("English");  
 textView.setText("똑같이 작성해주세요 : "+ data + "\n");
 ~~~
-사진 촬영 button의 onClickListener이다. 
+사진 촬영 button의 `onClickListener`이다. 
 ~~~java
 captureImageBtn.setOnClickListener(new View.OnClickListener() {  
     @Override  
@@ -442,7 +442,7 @@ private void dispatchTakePictureIntent() {
 }
 ~~~
 카메라로 촬영한 후에 실행되는 method이다.  
-image를 Bitmap으로 저장하고 imageView에 촬영된 사진을 보여준 후, detectTextFromImage() method를 실행한다.
+image를 Bitmap으로 저장하고 imageView에 촬영된 사진을 보여준 후, `detectTextFromImage()` method를 실행한다.
 ~~~java
 @Override  
 protected void onActivityResult(int requestCode, int resultCode, Intent data) {  
@@ -455,8 +455,14 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 	}  
 }
 ~~~
-위의 카메라로 촬영한 후에 실행되는 method에서의 detectTextFromImage() method이다.
- 촬영된 image에서 Text를 인식하고 성공했을 시에 displayTextFromImage() method를 실행한다.
+>Firebase ML Kit에 대한 method 설명은 아래 링크를 참고하면서 보면 도움이 된다. 
+>[Firebase ML Kit Text Recognition 설명 바로가기](https://firebase.google.com/docs/ml-kit/android/recognize-text)
+
+위의 카메라로 촬영한 후에 실행되는 method에서의 `detectTextFromImage()` method이다.
+인터넷이 연결되어 있을 때, 촬영된 image에서 Text를 인식하고 성공했을 시에  [`FirebaseVisionText`](https://firebase.google.com/docs/reference/android/com/google/firebase/ml/vision/text/FirebaseVisionText) 객체가 성공 리스너에 전달된다.
+ 
+`displayTextFromImage()` method에 `FirebaseVisionText` 객체를 파라미터로 전달하여 실행한다.
+>`FirebaseVisionText` 객체는 이미지에서 인식된 전체 텍스트 및 0개 이상의 [`TextBlock`](https://firebase.google.com/docs/reference/android/com/google/firebase/ml/vision/text/FirebaseVisionText.TextBlock) 객체를 포함한다.
 ~~~java
 private void detectTextFromImage()  
 {  
@@ -485,7 +491,8 @@ private void detectTextFromImage()
     });  
  }
 ~~~
-
+`TextBlock` 를 List에 넣어주고, List의 size가 0일 때는 image에서 Text가 인식되지 않은 것이기 때문에 textView에 재촬영을 요구하는 글을 표시한다.
+Text가 인식된 경우에는 Text와 AttendanceCheckActivity에서 전달받은 단어를 `check()` method의 파라미터로 전달하여 실행한다. 
 ~~~java
 private void displayTextFromImage(FirebaseVisionText firebaseVisionText) {  
     List<FirebaseVisionText.TextBlock> blockList = firebaseVisionText.getTextBlocks();  
@@ -502,3 +509,33 @@ private void displayTextFromImage(FirebaseVisionText firebaseVisionText) {
     }  
 }
 ~~~
+제시된 단어와 촬영하여 인식된 단어가 같은지 확인하는 `check()` method이다.
+두 단어가 일치할 시, 현재 Activity가 종료되면서 AttendanceCheckActivity로 true값을 전달한다.
+~~~java
+public void check(String text, String data){  
+    if(text.equals(data)){  
+        checkValue = true;  
+		Intent intent = new Intent();  
+		intent.putExtra("checkValue", checkValue);  
+		setResult(RESULT_OK, intent);  
+		finish();  
+	}  
+    else {  
+        checkValue = false;  
+		textView2.setText("인식된 단어는 " + text);  
+	}  
+}
+~~~
+
+## OpenCV를 이용한 출석체크
+
+OpenCV를 이용한 출석체크를 하기위해서는, 미리 등록된 5장의 책상 사진이 존재해야한다.
+Profile에서 5장의 책상사진을 업로드하면 이 기능을 사용할 수 있다.
+- OpenCV의 Color Histogram을 이용하여 두 장의 Image를 비교하는 기능을 구현하였다. 
+- Color Histogram은 조명에 영향을 받을 수 있기 때문에 여러 장의 사진을 등록하여 비교한다.
+- 등록한 사진과 같은 책상 사진을 찍었지만 출석체크가 되지 않은 경우에는 빛에 의해 사진의 밝기가 변화가 생겼기 때문일 수있다.
+- 이러한 문제를 개선하기 위해, 출석체크에 실패했을 경우 해당 사진을 등록하는 책상 사진으로 추가할 수 있다.
+
+>[OpenCV Histogram Compare 설명](https://docs.opencv.org/master/d8/dc8/tutorial_histogram_comparison.html)
+
+Color Histogram를 통한 출석체크가 수행되는 과정
