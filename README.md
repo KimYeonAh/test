@@ -59,7 +59,7 @@ btnOpencv.setOnClickListener(new View.OnClickListener() {
 }
 ~~~
 
-랜덤으로 하나의 영어단어를 함께 넘겨주기위해 String.xml 에 영어단어 10가지를 추가하여 배열에 넣어주었다.
+랜덤으로 하나의 영어단어를 함께 넘겨주기위해 `String.xml` 에 영어단어 10가지를 추가하여 배열에 넣어주었다.
 ~~~java
 randomText = getResources().getStringArray(R.array.random_text);  
 rnd = new Random();
@@ -81,8 +81,8 @@ rnd = new Random();
 ></string-array>
 >~~~
 
-Text 인식을 이용한 출석체크 버튼을 눌렀을 경우 실행되는 textRecognition() method 이다.<br>
-랜덤으로 randomText배열에 들어가 있는 영어단어 하나를 함께 TextRecognitionActivity로 보내준다. 
+Text 인식을 이용한 출석체크 버튼을 눌렀을 경우 실행되는 `textRecognition()` method 이다.<br>
+랜덤으로 randomText배열에 들어가 있는 영어단어 하나를 함께 **TextRecognitionActivity**로 보내준다. 
 ~~~java
 public void textRecognition(){  
 	Intent intent = new Intent(this, TextRecognitionActivity.class );  
@@ -93,7 +93,7 @@ public void textRecognition(){
 }
 ~~~
 
-Skip button을 제외한 각 버튼들을 클릭하면, startActivityForResult를 통해 Activity마다 다른 requestCode와 함께 해당 Activity로 넘겨준다. 아래는 각 Activity의 requestCode를 정의해준 것이다.
+Skip button을 제외한 각 버튼들을 클릭하면, `startActivityForResult()`를 통해 Activity마다 다른 requestCode와 함께 해당 Activity로 넘겨준다. 아래는 각 Activity의 requestCode를 정의해준 것이다.
 ~~~java
 // 출석체크시 Activity 구분을 위한 requestCode  
 final int LABEL_ACTIVITY = 1;  //사물 인식 Activity
@@ -102,7 +102,7 @@ final int IMAGE_MATCHING_ACTIVITY = 3; // Image Matching Activity
 ~~~
 
 
-startActivityForResult를 사용하여 다른 Activity를 실행해줬을 경우, onActivityResult를 통해 Activity의 결과를 가져와 출석체크 출결여부를 결정한다.<br>
+`startActivityForResult()`를 사용하여 다른 Activity를 실행해줬을 경우, `onActivityResult()`를 통해 Activity의 결과를 가져와 출석체크 출결여부를 결정한다.<br>
 Activity의 구분은 위에서 함께 넘겨준 requestCode로 구분할 수 있다.
 
 - 출석체크 완료 시, 출석 count를 증가시키고 알람과 Activity를 꺼준다.
@@ -166,7 +166,7 @@ protected void onActivityResult(int requestCode, int resultCode, @Nullable Inten
 	}  
 }
 ~~~
-Skip button을 클릭시 수행되는 dialogSkip() method이다.<br>
+Skip button을 클릭시 수행되는 `dialogSkip()` method이다.<br>
 AlertDialog를 띄워 출석 여부를 고를 수 있다.
 ~~~java
 public void dialogSkip(){  
@@ -212,7 +212,7 @@ public void dialogSkip(){
 ## Firebase ML Kit를 이용한 출석체크 
 
 Firebase ML Kit를 이용한 출석체크 기능으로는 사물인식 (Image Labeling), 문자 인식 (Text Recognition) 이 있다. 
-- Firebase ML Kit를 사용하기 위해서는 아래와 같이 build.gradle에 정의해주어야 한다.
+- Firebase ML Kit를 사용하기 위해서는 아래와 같이 `build.gradle`에 정의해주어야 한다.
 
 **build.gradle (:app)**
 ~~~java
@@ -333,7 +333,7 @@ cameraView.addCameraKitListener(new CameraKitEventListener() {
 	public void onVideo(CameraKitVideo cameraKitVideo) { }  
 });
 ~~~
-위의 CameraKitListener에서 사용한 runDetector() method이다.<br>
+위의 CameraKitListener에서 사용한 `runDetector()` method이다.<br>
 아까 만들어준 InternetCheck.java 를 통해 인터넷을 체크한 후 , image에서 사물 인식 confidenceThreshold를 설정해준다.<br>
 설정한 confidenceThreshold의 값보다 높은 값을 가지는 Label이 반환한다.
 ~~~java
@@ -376,8 +376,8 @@ private void runDetector(Bitmap bitmap) {
      });
  }
 ~~~
-위의 runDetector() 에서 사용한 processDataResultCloud() method 이다.<br>
-runDetector()에서 인식한 Label을 넘겨받아 Label 값이 존재할 경우 AttendanceCheckActivity로 Label 값을 넘겨주면서 ImageLabelActivity를 종료한다.
+위의 `runDetector()` 에서 사용한 `processDataResultCloud()` method 이다.<br>
+`runDetector()`에서 인식한 Label을 넘겨받아 Label 값이 존재할 경우 AttendanceCheckActivity로 Label 값을 넘겨주면서 ImageLabelActivity를 종료한다.
 ~~~java
 private void processDataResultCloud(List<FirebaseVisionImageLabel> firebaseVisionCloudLabels) {  
 	if(firebaseVisionCloudLabels.size()!=0){  
